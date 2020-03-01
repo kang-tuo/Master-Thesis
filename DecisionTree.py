@@ -33,15 +33,10 @@ from ToDataframe import *
 
 
 
-data_path = r"C://Users//admin//Desktop//Outputmap1.json"
+data_path = r"C://Users//admin//Desktop//Output2.json"
 TDF = ConvertJsonToDataframe()
 data_df = TDF.main(data_path)
-t_df=data_df.loc[data_df['winnerSide']=='T']
-t_df['winnerSide']=1
-ct_df=data_df.loc[data_df['winnerSide']=='CT']
-ct_df['winnerSide']=-1
-df=pd.concat([t_df,ct_df])
-dataset = df.sample(frac=1)
+dataset = data_df.sample(frac=1)
 dataset.columns = ['winnerSide', 'secondAfterBomb', 'aliveTNum', 'aliveCTNum', 'TP1dist', 'TP2dist', 'TP3dist',
                    'TP4dist', 'TP5dist', 'CTP1dist', 'CTP2dist', 'CTP3dist', 'CTP4dist', 'CTP5dist', 'TP1weapon',
                    'TP2weapon', 'TP3weapon', 'TP4weapon', 'TP5weapon', 'CTP1weapon', 'CTP2weapon',

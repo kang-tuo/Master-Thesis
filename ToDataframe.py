@@ -42,6 +42,7 @@ class ConvertJsonToDataframe():
                     self.get_null()
 
         data_df = pd.DataFrame.from_dict(self.dataDict)
+        #print(data_df)
         return data_df
 
     def get_null(self):
@@ -52,7 +53,7 @@ class ConvertJsonToDataframe():
                 if "dist" in self.col:
                     self.dataDict[self.col].append(9999999999999999999)
                 if "weapon" in self.col:
-                    self.dataDict[self.col].append(" ")
+                    self.dataDict[self.col].append(0)
 
 
     def get_col_names(self):
@@ -88,7 +89,11 @@ class ConvertJsonToDataframe():
     def get_round_info(self, round):
         self.map_name = round['mapName']
         self.round_num = round['num']
-        self.winner_side = round['winnerSide']
+        winner_side = round['winnerSide']
+        if winner_side=='T':
+            self.winner_side = 1
+        if winner_side == 'CT':
+            self.winner_side = -1
         self.bomb_position = round['bombPosition']
         self.post_plant_status = round['postPlantStatus']
 
@@ -119,5 +124,6 @@ class ConvertJsonToDataframe():
         return dist
 
 
-
-
+data_path = r"C://Users//admin//Desktop//Output2.json"
+TDF = ConvertJsonToDataframe()
+dataset = TDF.main(data_path)

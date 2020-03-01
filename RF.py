@@ -7,7 +7,7 @@ from ToDataframe import *
 
 
 
-data_path = r"C://Users//admin//Desktop//Outputmap1.json"
+data_path = r"C://Users//admin//Desktop//Output2.json"
 TDF = ConvertJsonToDataframe()
 data_df = TDF.main(data_path)
 dataset = data_df.sample(frac=1)
@@ -127,6 +127,7 @@ query = testing_data.iloc[0, :].drop('winnerSide').to_dict()
 query_target = testing_data.iloc[0, 0]
 print('target: ', query_target)
 prediction = RandomForest_Predict(query, random_forest)
+
 print('prediction: ', prediction)
 
 #######Test the model on the testing data and return the accuracy###########

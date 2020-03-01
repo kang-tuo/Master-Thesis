@@ -8,6 +8,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_validate
 import scipy.stats as sps
+from ToDataframe import *
+
 
 class Boosting:
 
@@ -22,8 +24,8 @@ class Boosting:
 
     def fit(self):
         # Set the descriptive features and the target feature
-        X = self.dataset.drop(['target'], axis=1)
-        Y = self.dataset['target'].where(self.dataset['target'] == 1, -1)
+        X = self.dataset.drop(['winnerSide'], axis=1)
+        Y = self.dataset['winnerSide'].where(self.dataset['winnerSide'] == 1, -1)
 
         # Initialize the weights of each sample with wi = 1/N and create a dataframe in which the evaluation is computed
         Evaluation = pd.DataFrame(Y.copy())
@@ -55,8 +57,8 @@ class Boosting:
 
             # Add values to the Evaluation DataFrame
             Evaluation['predictions'] = predictions
-            Evaluation['evaluation'] = np.where(Evaluation['predictions'] == Evaluation['target'], 1, 0)
-            Evaluation['misclassified'] = np.where(Evaluation['predictions'] != Evaluation['target'], 1, 0)
+            Evaluation['evaluation'] = np.where(Evaluation['predictions'] == Evaluation['winnerSide'], 1, 0)
+            Evaluation['misclassified'] = np.where(Evaluation['predictions'] != Evaluation['winnerSide'], 1, 0)
 
             # Calculate the misclassification rate and accuracy
             accuracy = sum(Evaluation['evaluation']) / len(Evaluation['evaluation'])
@@ -67,6 +69,7 @@ class Boosting:
 
             # Calculate the alpha values
             alpha = np.log((1 - err) / err)
+            alpha = int(alpha)
             alphas.append(alpha)
 
             # Update the weights wi --> These updated weights are used in the sample_weight parameter
@@ -80,8 +83,8 @@ class Boosting:
         self.models = models
 
     def predict(self):
-        X_test = self.test_dataset.drop(['target'], axis=1).reindex(range(len(self.test_dataset)))
-        Y_test = self.test_dataset['target'].reindex(range(len(self.test_dataset))).where(self.dataset['target'] == 1,
+        X_test = self.test_dataset.drop(['winnerSide'], axis=1).reindex(range(len(self.test_dataset)))
+        Y_test = self.test_dataset['winnerSide'].reindex(range(len(self.test_dataset))).where(self.dataset['winnerSide'] == 1,
                                                                                           -1)
 
         # With each model in the self.model list, make a prediction
@@ -143,6 +146,10 @@ number_of_base_learners = 50
 
 fig = plt.figure(figsize=(10, 10))
 ax0 = fig.add_subplot(111)
+
+data_path = r"C://Users//admin//Desktop//Output2.json"
+TDF = ConvertJsonToDataframe()
+dataset = TDF.main(data_path)
 
 for i in range(number_of_base_learners):
     model = Boosting(dataset, i, dataset)
