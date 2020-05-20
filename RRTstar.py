@@ -19,6 +19,7 @@ except ImportError:
 
 show_animation = True
 
+
 class RRTStar(RRT):
     """
     Class for RRT Star planning

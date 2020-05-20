@@ -7,7 +7,7 @@ from ToDataframe import *
 
 
 
-data_path = r"C://Users//admin//Desktop//Output2.json"
+data_path = r"C://Users//admin//Desktop//Output22.json"
 TDF = ConvertJsonToDataframe()
 data_df = TDF.main(data_path)
 dataset = data_df.sample(frac=1)
@@ -136,6 +136,7 @@ def RandomForest_Test(data, random_forest):
     for i in range(len(data)):
         query = data.iloc[i, :].drop('winnerSide').to_dict()
         data.loc[i, 'predictions'] = RandomForest_Predict(query, random_forest, default='p')
+        #data['predictions'] = round(data['predictions'], 0)
     accuracy = sum(data['predictions'] == data['winnerSide']) / len(data) * 100
     print('The prediction accuracy is: ',sum(data['predictions'] == data['winnerSide'])/len(data)*100,'%')
     return accuracy

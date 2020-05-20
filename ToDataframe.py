@@ -42,7 +42,8 @@ class ConvertJsonToDataframe():
                     self.get_null()
 
         data_df = pd.DataFrame.from_dict(self.dataDict)
-        #print(data_df)
+        # print(data_df)
+
         return data_df
 
     def get_null(self):
@@ -51,10 +52,9 @@ class ConvertJsonToDataframe():
             actual_data_length = len(self.dataDict[self.col])
             if actual_data_length < data_length:
                 if "dist" in self.col:
-                    self.dataDict[self.col].append(9999999999999999999)
+                    self.dataDict[self.col].append(99999999999999999)
                 if "weapon" in self.col:
                     self.dataDict[self.col].append(0)
-
 
     def get_col_names(self):
         self.dist_col_name = self.player_side + "P" + str(self.player_num[self.player_side]) + "dist"
@@ -68,13 +68,27 @@ class ConvertJsonToDataframe():
         self.player_side = alive_player['Side']
         self.player_num[self.player_side] += 1
         self.player_position = alive_player['Position']
-        self.player_weapon = alive_player['Weapon']
+        self.player_weapon = alive_player['Weapon'] #self.get_weapon_weights
         self.player_weapon_value = alive_player['WeaponValue']
         self.player_kills = alive_player['Kills']
         self.player_money = alive_player['Money']
         self.player_velocity = alive_player['Velocity']
 
+    def set_categorial_feature_equal_to_expected_target_value(self, df, feature, factor=150):
+        mean_all = df[self.target].mean()
+        unique_values = df[feature].unique().tolist()
+        self.categorial_features_target_value[feature] = {}
+        for category in unique_values:
+            rows = df[df[feature] == category][self.target]
+            mean = rows.mean()
+            weight = (1 / (1 + 10 ** (-len(rows) / factor)) - 0.5) * 2
+            estimated_value = mean_all * (1 - weight) + weight * mean
+            self.df.loc[self.df[feature] == category, feature + '_expected'] = estimated_value
+            self.categorial_features_target_value[feature][category] = estimated_value
 
+    def get_weapon_weights(self):
+        pass
+    
     def get_post_plant_info(self, post_plant):
         second = post_plant['second']
         second_string = str(second)
@@ -90,10 +104,11 @@ class ConvertJsonToDataframe():
         self.map_name = round['mapName']
         self.round_num = round['num']
         winner_side = round['winnerSide']
+        #self.winner_side=pd.get_dummies(winner_side)
         if winner_side=='T':
-            self.winner_side = 1
+            self.winner_side = 1.0
         if winner_side == 'CT':
-            self.winner_side = -1
+            self.winner_side = -1.0
         self.bomb_position = round['bombPosition']
         self.post_plant_status = round['postPlantStatus']
 
@@ -123,7 +138,11 @@ class ConvertJsonToDataframe():
 
         return dist
 
+    def get_rrt_star_path_planning(self,pos1, pos2):
+        pass
 
-data_path = r"C://Users//admin//Desktop//Output2.json"
+
+data_path = r"C://Users//admin//Desktop//Output22.json"
 TDF = ConvertJsonToDataframe()
+
 dataset = TDF.main(data_path)
