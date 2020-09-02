@@ -61,7 +61,6 @@ def calc_distance_mat(ox, oy):
 
     return distance_mat
 
-
 if __name__ == '__main__':
     print("start time: " + time.asctime(time.localtime(time.time())))
     data_path = "E://Thesis//obstacles_list.txt"
