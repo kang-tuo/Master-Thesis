@@ -8,9 +8,23 @@ inf = 9999999
 reso = 10
 rr = 10
 
+
 def calc_grid_position(index, minp):
     pos = index * reso + minp
     return pos
+
+
+def calc_index(x, y):
+    xwidth = 84
+    minx = 112
+    miny = -873
+    col = (x - minx) / reso
+    row = (y - miny) / reso
+
+    index = round(row * xwidth + col)
+    if index >= 6048:
+        index = 6047
+    return index
 
 
 def calc_distance_mat(ox, oy):
@@ -145,4 +159,3 @@ if __name__ == '__main__':
     dist_matrix, predecessors = floyd_warshall(csgraph=graph, directed=False, return_predecessors=True)
     print(dist_matrix)
     print("finish time: " + time.asctime(time.localtime(time.time())))
-
