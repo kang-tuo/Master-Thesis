@@ -1,6 +1,10 @@
 import numpy as np
 from numpy.linalg import solve
+from scipy.sparse.csgraph._shortest_path import floyd_warshall
+
 from pathPlanning.aStar import AStarPlanner
+from pathPlanning.floyd import calc_distance_mat
+from scipy.sparse import csr_matrix
 
 
 def get_coefficients_from_certain_points():
@@ -105,6 +109,34 @@ def get_path_planning(start_position, goal_position, ox, oy, a_star, ax, ay, bx,
 
     else:
         return 0
+
+
+def get_FW(obstacles_list):
+    file = open(obstacles_list, "r", encoding='utf-8')
+    line = file.readline()
+    obstacles_list = []
+
+    while line:
+        split_data = line.split(",")
+        if len(split_data) == 3:
+            obstacle_x = float(split_data[0])
+            obstacle_y = float(split_data[1])
+            obstacles_coordinate = [obstacle_x, obstacle_y]
+            if obstacles_coordinate:
+                obstacles_list.append(obstacles_coordinate)
+        line = file.readline()
+    file.close()
+
+    ox, oy = [], []
+    length = len(obstacles_list)
+    for i in range(length):
+        ox.append(obstacles_list[i][0])
+        oy.append(obstacles_list[i][1])
+
+    distance_mat = calc_distance_mat(ox, oy)
+    graph = csr_matrix(distance_mat)
+    dist_matrix, predecessors = floyd_warshall(csgraph=graph, directed=False, return_predecessors=True)
+    return dist_matrix
 
 
 def get_a_star(obstacles_list):
