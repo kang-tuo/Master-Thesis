@@ -166,7 +166,7 @@ class ConvertJsonToDataframe():
 
 
 if __name__ == '__main__':
-    data_path = r"C://Users//admin//Desktop//Output22v2timestamp.json"
+    data_path = r"C://Users//admin//Desktop//.json"
     obstacles_txt = "E://Thesis//obstacles_list.txt"
 
     TDF = ConvertJsonToDataframe()
