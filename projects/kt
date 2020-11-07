@@ -1,0 +1,143 @@
+import json
+from sklearn.linear_model import LogisticRegression
+
+from ml_pipeline.MachineLearningGenerator import MachineLearningGenerator
+from sklearn.ensemble import RandomForestClassifier
+from projects.new_to_df import *
+from lightgbm import LGBMClassifier
+
+
+def get_kill_distance_df(df):
+    col_names = ['T1_CT1_distance', 'T2_CT1_distance', 'T3_CT1_distance', 'T4_CT1_distance', 'T5_CT1_distance',
+                 'T1_CT2_distance', 'T2_CT2_distance', 'T3_CT2_distance', 'T4_CT2_distance', 'T5_CT2_distance',
+                 'T1_CT3_distance', 'T2_CT3_distance', 'T3_CT3_distance', 'T4_CT3_distance', 'T5_CT3_distance',
+                 'T1_CT4_distance', 'T2_CT4_distance', 'T3_CT4_distance', 'T4_CT4_distance', 'T5_CT4_distance',
+                 'T1_CT5_distance', 'T2_CT5_distance', 'T3_CT5_distance', 'T4_CT5_distance', 'T5_CT5_distance', ]
+    df['moreKillWithinDistanceRatioT'] = 0
+    df['moreKillWithinDistanceRatioCT'] = 0
+    for index, row in df.iterrows():
+        T_close_with_more_kills = 0
+        CT_close_with_more_kills = 0
+        for col in col_names:
+            t_num = col[0:2]
+            t_kill_col = t_num + "_Kills"
+            ct_num = col[3:6]
+            ct_kill_col = ct_num + "_Kills"
+
+            T_avg_kills = row['avgKillT']
+            CT_avg_kills = row['avgKillCT']
+            distance = row[col]
+            t_kill = row[t_kill_col]
+            ct_kill = row[ct_kill_col]
+            if distance != 0 and distance < max_player_player_dist:
+                if t_kill > T_avg_kills:
+                    T_close_with_more_kills += 1
+                if ct_kill > CT_avg_kills:
+                    CT_close_with_more_kills += 1
+        if row['alive_num_T'] != 0:
+            df.at[index, 'moreKillWithinDistanceRatioT'] = T_close_with_more_kills / row['alive_num_T']
+        if row['alive_num_CT'] != 0:
+            df.at[index, 'moreKillWithinDistanceRatioCT'] = CT_close_with_more_kills / row['alive_num_CT']
+
+    return df
+
+
+def feature_extraction(df):
+    df['teamWeaponValueT'] = (df['T1_WeaponValue'] + df['T2_WeaponValue'] +
+                              df['T3_WeaponValue'] + df['T4_WeaponValue'] +
+                              df['T5_WeaponValue'])
+    df['teamWeaponValueCT'] = (df['CT1_WeaponValue'] + df['CT2_WeaponValue'] +
+                               df['CT3_WeaponValue'] + df['CT4_WeaponValue'] +
+                               df['CT5_WeaponValue'])
+
+    df['avgDistBombT'] = (df['T1_B_distance'] + df['T2_B_distance'] +
+                          df['T3_B_distance'] + df['T4_B_distance'] +
+                          df['T5_B_distance']) / df['alive_num_T']
+    df['avgDistBombCT'] = (df['CT1_B_distance'] + df['CT2_B_distance'] +
+                           df['CT3_B_distance'] + df['CT4_B_distance'] +
+                           df['CT5_B_distance']) / df['alive_num_CT']
+
+    df['avgDistPlayers'] = (df['T1_CT1_distance'] + df['T2_CT1_distance'] + df['T3_CT1_distance'] + df[
+        'T4_CT1_distance'] + df['T5_CT1_distance'] +
+                            df['T1_CT2_distance'] + df['T2_CT2_distance'] + df['T3_CT2_distance'] + df[
+                                'T4_CT2_distance'] + df['T5_CT2_distance'] +
+                            df['T1_CT3_distance'] + df['T2_CT3_distance'] + df['T3_CT3_distance'] + df[
+                                'T4_CT3_distance'] + df['T5_CT3_distance'] +
+                            df['T1_CT4_distance'] + df['T2_CT4_distance'] + df['T3_CT4_distance'] + df[
+                                'T4_CT4_distance'] + df['T5_CT4_distance'] +
+                            df['T1_CT5_distance'] + df['T2_CT5_distance'] + df['T3_CT5_distance'] + df[
+                                'T4_CT5_distance'] + df['T5_CT5_distance']) / \
+                           (df['alive_num_T'] + df['alive_num_CT'])
+
+    df['avgKillT'] = (df['T1_Kills'] + df['T2_Kills'] +
+                      df['T3_Kills'] + df['T4_Kills'] +
+                      df['T5_Kills']) / df['alive_num_T']
+    df['avgKillCT'] = (df['CT1_Kills'] + df['CT2_Kills'] +
+                       df['CT3_Kills'] + df['CT4_Kills'] +
+                       df['CT5_Kills']) / df['alive_num_CT']
+
+    df['playerFurtherRatioT'] = df['player_further_num_T'] / df['alive_num_T']
+    df['playerFurtherRatioCT'] = df['player_further_num_CT'] / df['alive_num_CT']
+    df['winnerSide'].loc[df['winnerSide'] == 'T'] = 1
+    df['winnerSide'].loc[df['winnerSide'] == 'CT'] = 0
+    df['alive_category'] = "CT_" + df['alive_num_CT'].map(str) + 'T_' + df['alive_num_T'].map(str)
+    df['flash_category'] = "CT_" + df['flash_CT'].map(str) + 'T_' + df['flash_T'].map(str)
+    df['molo_category'] = "CT_" + df['molo_CT'].map(str) + 'T_' + df['molo_T'].map(str)
+    df['smoke_category'] = "CT_" + df['smoke_CT'].map(str) + 'T_' + df['smoke_T'].map(str)
+    df['start_date_time'] = df['startParseTime']
+
+    df = get_kill_distance_df(df)
+    df = df.fillna(0)
+
+    return df
+
+
+obstacles_txt = "E://Thesis//obstacles_list.txt"
+
+# df1 = pd.read_pickle("E://Thesis//data8.pkl")
+# df2 = pd.read_pickle("E://Thesis//data8no3.pkl")
+# df3 = pd.read_pickle("E://Thesis//data8no4.pkl")
+
+df1 = pd.read_pickle("E://Thesis//dataFW1v2.pkl")
+df2 = pd.read_pickle("E://Thesis//dataFW2v2.pkl")
+df3 = pd.read_pickle("E://Thesis//dataFW3v2.pkl")
+
+frames = [df1, df2, df3]
+df = pd.concat(frames, ignore_index=True)
+
+df = feature_extraction(df)
+target = 'winnerSide'
+
+max_test_timestamp = 1590445075
+
+categorical_features = ['alive_category', 'flash_category', 'molo_category', 'smoke_category']
+
+features = ['secondAfterBomb', 'teamWeaponValueCT', 'teamWeaponValueT',
+            'avgDistPlayers', 'alive_category', 'flash_category', 'molo_category', 'moreKillWithinDistanceRatioT',
+            'moreKillWithinDistanceRatioCT', 'playerFurtherRatioT', 'playerFurtherRatioCT',
+            ]
+
+# 'secondAfterBomb', 'avgDistBombT', 'avgDistBombCT', 'teamWeaponValueCT', 'teamWeaponValueT',
+#             'avgDistPlayers', 'alive_category', 'flash_category', 'molo_category', 'moreKillWithinDistanceRatioT',
+#             'moreKillWithinDistanceRatioCT', 'playerFurtherRatioT','playerFurtherRatioCT', 'smoke_category'
+
+
+ml_algorithms = {
+    # RandomForestClassifier(): None,
+    LogisticRegression(): None,
+    # LGBMClassifier: None,
+}
+
+print(time.asctime(time.localtime(time.time())))
+
+MachineLearning = MachineLearningGenerator(machine_learning_models=ml_algorithms,  # find_optimal_features=True,
+                                           date_period_column_name='startParseTime',
+                                           categorical_features=categorical_features,
+                                           verbose=True, target_name=target, df=df,
+                                           test_period_max_date=max_test_timestamp,
+                                           target_type='binary')  # ,test_period_max_date= max_test_timestamp
+
+ml_model = MachineLearning.fit(df[features], df[target])
+print(time.asctime(time.localtime(time.time())))
+
+MachineLearning = MachineLearningGenerator(target, features, df)
