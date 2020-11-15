@@ -4,10 +4,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import log_loss, confusion_matrix, accuracy_score, f1_score
 
 from ml_pipeline.multiclassification import GridSearchMultiClass
-from ml_pipeline.binary import GridSearchBinary
-from ml_pipeline.regression import GridSearchRegression
-from ml_pipeline.preprocessing import DataPreprocessing
-from ml_pipeline.default_model_parameters import *
+from Modelling.ml_pipeline.binary import GridSearchBinary
+from Modelling.ml_pipeline.regression import GridSearchRegression
+from Modelling.ml_pipeline.preprocessing import DataPreprocessing
+from Modelling.ml_pipeline.default_model_parameters import *
 from sklearn.linear_model import LogisticRegression
 from settings import *
 import pandas as pd

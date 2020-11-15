@@ -1,8 +1,9 @@
-
 import json
 import pandas as pd
-from projects.const import *
-from projects.functions import *
+
+from Modelling.pathPlanning.floyd import calc_index
+from Modelling.main.const import *
+from Modelling.main.functions import *
 
 
 class ConvertJsonToDataframe():
@@ -18,7 +19,7 @@ class ConvertJsonToDataframe():
 
         ax, ay, bx, by = get_coefficients_from_certain_points()
         obstacles_list = get_obstacles_list(obstacles_file_path)
-        a_star, ox, oy = get_a_star(obstacles_list)
+        graph = get_FW(obstacles_txt)
 
         print(time.asctime(time.localtime(time.time())))
         for rounds in data:
@@ -34,8 +35,12 @@ class ConvertJsonToDataframe():
                         self.get_alive_player_info(alive_player, ax, ay, bx, by)
                         if self.player_num[self.player_side] > 5:
                             break
-                        self.player_bomb_distance = get_path_planning(self.player_position, self.bomb_position,
-                                                                      ox, oy, a_star, ax, ay, bx, by)
+                        bomb_index = calc_index(self.bomb_position[0], self.bomb_position[1])
+                        player_index = calc_index(self.player_position[0], self.player_position[1])
+                        self.player_bomb_distance = graph[bomb_index][player_index]
+                        if self.player_bomb_distance >= 99999:
+                            self.player_bomb_distance = get_manhattan_distance(self.bomb_position,
+                                                                                 self.player_position)
                         if self.player_bomb_distance > max_bomb_player_dist:
                             self.player_further_num[self.player_side] += 1
 
@@ -46,8 +51,11 @@ class ConvertJsonToDataframe():
                             self.op_side_num += 1
                             pos_x, pos_y = get_transformed_coordinates(op_player['Position'][0],
                                                                        op_player['Position'][1], ax, ay, bx, by)
-                            self.player_player_distance = get_path_planning(self.player_position, [pos_x, pos_y],
-                                                                       ox, oy, a_star, ax, ay, bx, by)
+                            op_player_index = calc_index(pos_x, pos_y)
+                            self.player_player_distance = graph[op_player_index][player_index]
+                            if self.player_player_distance >= 99999:
+                                self.player_player_distance = get_manhattan_distance(op_player['Position'],
+                                                                                     self.player_position)
                             if self.op_side_num > 5:
                                 break
                             self.player_dist_append()
@@ -59,7 +67,7 @@ class ConvertJsonToDataframe():
         data_df = pd.DataFrame.from_dict(self.dataDict)
 
         print(data_df)
-        pickle_path = "E://Thesis//data8.pkl"
+        pickle_path = "E://Thesis//dataFW1v2.pkl"
         data_df.to_pickle(pickle_path, protocol=3)
         return data_df
 
@@ -81,7 +89,7 @@ class ConvertJsonToDataframe():
         self.player_side = alive_player['Side']
         self.player_num[self.player_side] += 1
         pos_x, pos_y = get_transformed_coordinates(alive_player['Position'][0],
-                                                             alive_player['Position'][1], ax, ay, bx, by)
+                                                   alive_player['Position'][1], ax, ay, bx, by)
         velocity_x, velocity_y = get_transformed_coordinates(alive_player['Velocity'][0],
                                                              alive_player['Velocity'][1], ax, ay, bx, by)
         self.player_velocity = [velocity_x, velocity_y]
@@ -91,7 +99,6 @@ class ConvertJsonToDataframe():
             self.op_side = "CT"
         if self.player_side == 'CT':
             self.op_side = "T"
-
 
     def get_feature_col_name(self, feature):
         feature_col_name = self.player_side + str(self.player_num[self.player_side]) + "_" + feature
@@ -167,7 +174,7 @@ class ConvertJsonToDataframe():
 
 
 if __name__ == '__main__':
-    data_path = r"C://Users//admin//Desktop//.json"
+    data_path = r"C://Users//admin//Desktop//Output22v2timestamp.json"
     obstacles_txt = "E://Thesis//obstacles_list.txt"
 
     TDF = ConvertJsonToDataframe()

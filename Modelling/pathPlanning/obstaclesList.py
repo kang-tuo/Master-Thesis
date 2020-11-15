@@ -3,7 +3,7 @@ import time
 import numpy as np
 import math
 
-from pathPlanning.floyd import Floyd
+from Modelling.pathPlanning.floyd import Floyd
 
 inf = 9999999
 reso = 10

@@ -1,9 +1,9 @@
 import json
 from sklearn.linear_model import LogisticRegression
 
-from ml_pipeline.MachineLearningGenerator import MachineLearningGenerator
+from Modelling.ml_pipeline.MachineLearningGenerator import MachineLearningGenerator
 from sklearn.ensemble import RandomForestClassifier
-from projects.new_to_df import *
+from Modelling.main.new_to_df import *
 from lightgbm import LGBMClassifier
 
 

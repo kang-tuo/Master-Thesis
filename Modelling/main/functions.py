@@ -2,8 +2,8 @@ import numpy as np
 from numpy.linalg import solve
 from scipy.sparse.csgraph._shortest_path import floyd_warshall
 
-from pathPlanning.aStar import AStarPlanner
-from pathPlanning.floyd import calc_distance_mat
+from Modelling.pathPlanning.aStar import AStarPlanner
+from Modelling.pathPlanning.floyd import calc_distance_mat
 from scipy.sparse import csr_matrix
 
 
