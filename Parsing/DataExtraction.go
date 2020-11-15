@@ -56,8 +56,8 @@ type RoundInfo struct {
 }
 
 func newSession() (*session.Session, error) {
-	ak := "BQ40V7KXWOUB1OLQ543C"
-	sk := "ztM2Wg9TefNBqsAOYrXKNjfMyn2sMBhbnU6eFenv"
+	ak := ""
+	sk := ""
 	creds := credentials.NewStaticCredentials(ak, sk, "")
 	config := &aws.Config{
 		Region:           aws.String("eu-central-1"),
