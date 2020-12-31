@@ -6,12 +6,12 @@ Counter Strike is a popular first-person shooting game that has a rich community
 
 For the three machine learning algorithms and two path planning algorithms, the data are trained one time without hyper-parameter tuning and one time with tuning. Consequently, there are a total of 12 predictions for a single set of data to compare with the best accuracy's being reported as: 88.1% for LGBM, 87.9% for RF, and 85.9% for LR and an observation that LGBM is more sensitive to parameter tuning. This thesis verifies that the round winning situation can be successfully predicted with satisfactory results. Furthermore, ensemble machine leaning methods work better than Logistic Regression for this specific problem and setup. Lastly, in this work, the Floyd-Warshall algorithm was shown to work better with ensemble methods while A* is better with Logistic Regression.
 
-Software:
+# Software:
 - JetBrains GoLand 2019.3
 - PyCharm Community Edition 2019.3.2
 - QGIS3
 
-Libraries:
+# Libraries:
 - LightGBM (https://lightgbm.readthedocs.io/en/latest/)
 - NumPy (https://numpy.org/)
 - Pandas (https://pandas.pydata.org/)
